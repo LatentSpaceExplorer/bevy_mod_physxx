@@ -1,6 +1,7 @@
 //! A tree structure of bodies connected by joints that is treated as a unit by the dynamics solver.
 use bevy::prelude::*;
 use physx::prelude::*;
+use physx::traits::Class;
 
 use crate::core::scene::SceneRwLock;
 use crate::types::*;
@@ -101,14 +102,18 @@ impl std::ops::DerefMut for ArticulationRootHandle {
 
 impl Drop for ArticulationRootHandle {
     fn drop(&mut self) {
-        // TODO: it needs to be removed from scene first
+
+        unsafe {
+            let scene = physx_sys::PxArticulationReducedCoordinate_getScene(self.handle.as_mut().unwrap().get_mut_unsafe().as_ptr());
+            physx_sys::PxScene_removeArticulation_mut(scene, self.handle.as_mut().unwrap().get_mut_unsafe().as_mut_ptr(), false);
+        }
         std::mem::forget(self.handle.take());
     }
 }
 
 #[derive(Component)]
 pub struct ArticulationLinkHandle {
-    handle: Option<SceneRwLock<Owner<PxArticulationLink>>>,
+    pub handle: Option<SceneRwLock<Owner<PxArticulationLink>>>,
     // used for change detection
     pub predicted_gxform: GlobalTransform,
 }
@@ -136,7 +141,7 @@ impl std::ops::DerefMut for ArticulationLinkHandle {
 impl Drop for ArticulationLinkHandle {
     fn drop(&mut self) {
         // avoid calling release, because we cannot release an articulation link while it's attached to a scene;
-        // TODO: this should be released from ArticulationRoot
+        // TODO: this should be released from ArticulationRoot //not needed if atriculation is removed from scene first
         std::mem::forget(self.handle.take());
     }
 }

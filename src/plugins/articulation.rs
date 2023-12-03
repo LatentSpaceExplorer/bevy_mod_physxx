@@ -103,6 +103,7 @@ pub struct ArticulationPlugin;
 impl Plugin for ArticulationPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<ArticulationRoot>();
+        app.register_type::<ArticulationSolverIterationCounts>();
         app.register_type::<ArticulationJointDriveTarget>();
         app.register_type::<ArticulationJointDriveVelocity>();
         app.register_type::<ArticulationJointPosition>();
@@ -113,6 +114,7 @@ impl Plugin for ArticulationPlugin {
             articulation_drive_target_sync,
             articulation_drive_velocity_sync,
             articulation_joint_position_sync,
+            articulation_root_solver_iteration_counts_sync,
         ).in_set(PhysicsSet::Sync));
     }
 }
@@ -344,3 +346,62 @@ pub fn articulation_joint_position_sync(
         }
     }
 }
+
+
+
+#[derive(Component, Debug, PartialEq, Clone, Copy, Reflect)]
+#[cfg_attr(feature = "serialize", derive(serde::Serialize, serde::Deserialize))]
+#[reflect(Component)]
+/// Sets the number of iterations the solver should perform. 
+/// If the articulation is behaving erratically, increasing the iteration counts may improve stability.
+pub struct ArticulationSolverIterationCounts {
+    pub min_position_iterations: u32,
+    pub min_velocity_iterations: u32,
+}
+
+impl Default for ArticulationSolverIterationCounts {
+    fn default() -> Self {
+        Self {
+            min_position_iterations: 4,
+            min_velocity_iterations: 1,
+        }
+    }
+}
+
+impl ArticulationSolverIterationCounts {
+    pub fn new(min_position_iterations: u32, min_velocity_iterations: u32) -> Self {
+        Self {
+            min_position_iterations,
+            min_velocity_iterations,
+        }
+    }
+}
+
+
+
+pub fn articulation_root_solver_iteration_counts_sync(
+    mut scene: ResMut<Scene>,
+    mut actors: Query<
+        (Option<&mut ArticulationRootHandle>, Ref<ArticulationSolverIterationCounts>),
+        Or<(Added<ArticulationRootHandle>, Changed<ArticulationSolverIterationCounts>)>,
+    >,
+    ) {
+    // this function only applies user defined properties,
+    // there's nothing to get back from physx engine
+    for (articulation_root, rb_flags) in actors.iter_mut() {
+
+        if let Some(mut articulation_root) = articulation_root {
+            articulation_root.get_mut(&mut scene).set_solver_iteration_counts(
+                rb_flags.min_position_iterations,
+                rb_flags.min_velocity_iterations
+            );
+        } else if !rb_flags.is_added() {
+            bevy::log::warn!("ArticulationSolverIterationCounts component exists, but it's not an articulation root");
+            continue;
+        } else {
+            continue;
+        };
+
+    } 
+}
+

@@ -10,7 +10,7 @@ use crate::types::*;
 pub struct RigidDynamicHandle {
     #[deref]
     #[deref_mut]
-    handle: SceneRwLock<Owner<PxRigidDynamic>>,
+    pub handle: SceneRwLock<Owner<PxRigidDynamic>>,
     // used for change detection
     pub predicted_gxform: GlobalTransform,
 }

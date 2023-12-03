@@ -70,15 +70,32 @@ impl MaxVelocity {
     }
 }
 
+
+#[derive(Component, Debug, Default, PartialEq, Clone, Copy, Reflect)]
+#[cfg_attr(feature = "serialize", derive(serde::Serialize, serde::Deserialize))]
+#[reflect(Component, Default)]
+/// The maximum allowed depenetration velocity
+pub struct MaxDepenetrationVelocity {
+    pub bias_clamp: f32,
+}
+
+impl MaxDepenetrationVelocity {
+    pub fn new(bias_clamp: f32) -> Self {
+        Self { bias_clamp }
+    }
+}
+
 pub struct VelocityPlugin;
 
 impl Plugin for VelocityPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Velocity>();
         app.register_type::<MaxVelocity>();
+        app.register_type::<MaxDepenetrationVelocity>();
 
         app.add_systems(PhysicsSchedule, velocity_sync.in_set(PhysicsSet::Sync));
         app.add_systems(PhysicsSchedule, max_velocity_sync.in_set(PhysicsSet::Sync));
+        app.add_systems(PhysicsSchedule, max_depenetration_velocity_sync.in_set(PhysicsSet::Sync));
     }
 }
 
@@ -185,6 +202,39 @@ pub fn max_velocity_sync(
             actor_handle.set_max_angular_velocity(max_velocity.angular);
         } else if !max_velocity.is_added() {
             bevy::log::warn!("MaxVelocity component exists, but it's neither a rigid dynamic nor articulation link");
+        };
+    }
+}
+
+
+
+
+pub fn max_depenetration_velocity_sync(
+    mut scene: ResMut<Scene>,
+    mut actors: Query<
+        (
+            Option<&mut RigidDynamicHandle>,
+            Option<&mut ArticulationLinkHandle>,
+            Ref<MaxDepenetrationVelocity>,
+        ),
+        Or<(
+            Added<RigidDynamicHandle>,
+            Added<ArticulationLinkHandle>,
+            Changed<MaxDepenetrationVelocity>,
+        )>,
+    >,
+) {
+    // this function only applies user defined properties,
+    // there's nothing to get back from physx engine
+    for (dynamic, articulation, max_depenetration_velocity) in actors.iter_mut() {
+        if let Some(mut actor) = dynamic {
+            let mut actor_handle = actor.get_mut(&mut scene);
+            actor_handle.set_max_depenetration_velocity(max_depenetration_velocity.bias_clamp)
+        } else if let Some(mut actor) = articulation {
+            let mut actor_handle = actor.get_mut(&mut scene);
+            actor_handle.set_max_depenetration_velocity(max_depenetration_velocity.bias_clamp)
+        } else if !max_depenetration_velocity.is_added() {
+            bevy::log::warn!("MaxDepenetrationVelocity component exists, but it's neither a rigid dynamic nor articulation link");
         };
     }
 }

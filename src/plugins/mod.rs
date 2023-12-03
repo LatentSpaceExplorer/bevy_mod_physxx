@@ -15,3 +15,5 @@ pub mod shape_offsets;
 pub mod sleep;
 pub mod velocity;
 pub mod lock_flags;
+pub mod joints;
+pub mod rigid_body_flags;  

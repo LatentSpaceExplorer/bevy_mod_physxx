@@ -176,7 +176,7 @@ pub struct SceneRwLockReadGuard<'t, T> {
 }
 
 impl<'t, T> SceneRwLockReadGuard<'t, T> {
-    fn new(payload: &'t T, scene: Option<*mut physx_sys::PxScene>) -> Self {
+    pub(crate) fn new(payload: &'t T, scene: Option<*mut physx_sys::PxScene>) -> Self {
         if let Some(scene) = scene {
             unsafe { PxScene_lockRead_mut(scene, null(), 0); }
         }

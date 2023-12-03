@@ -160,6 +160,8 @@ impl PluginGroup for PhysicsPlugins {
             .add(crate::plugins::sleep::SleepPlugin)
             .add(crate::plugins::velocity::VelocityPlugin)
             .add(crate::plugins::lock_flags::LockFlagsPlugin)
+            .add(crate::plugins::joints::fixed_joint::FixedJointPlugin)
+            .add(crate::plugins::rigid_body_flags::RigidBodyFlagsPlugin)
     }
 }
 

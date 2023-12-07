@@ -30,18 +30,18 @@ impl FixedJointHandle {
 impl Drop for FixedJointHandle {
     fn drop(&mut self) {
 
-        unsafe { //wake up actors to be able to delete them
+        // unsafe { //wake up actors to be able to delete them
             //create actor0 and actor1 null ptrs
-            let mut actor0 = std::ptr::null_mut();
-            let mut actor1 = std::ptr::null_mut();
+            // let mut actor0 = std::ptr::null_mut();
+            // let mut actor1 = std::ptr::null_mut();
 
-            physx_sys::PxJoint_getActors(self.handle.get_mut_unsafe().to_owned() as *mut physx_sys::PxJoint, &mut actor0, &mut actor1);
+            // physx_sys::PxJoint_getActors(self.handle.get_mut_unsafe().to_owned() as *mut physx_sys::PxJoint, &mut actor0, &mut actor1);
 
             //wake up actors
-            physx_sys::PxRigidDynamic_wakeUp_mut(actor0 as *mut physx_sys::PxRigidDynamic);
-            physx_sys::PxRigidDynamic_wakeUp_mut(actor1 as *mut physx_sys::PxRigidDynamic);
+            // physx_sys::PxRigidDynamic_wakeUp_mut(actor0 as *mut physx_sys::PxRigidDynamic);
+            // physx_sys::PxRigidDynamic_wakeUp_mut(actor1 as *mut physx_sys::PxRigidDynamic);
 
-        }
+        // }
 
         unsafe { physx_sys::PxJoint_release_mut( self.handle.get_mut_unsafe().to_owned() as *mut physx_sys::PxJoint) };
         unsafe { std::ptr::drop_in_place(self.handle.get_mut_unsafe()) }

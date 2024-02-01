@@ -50,8 +50,9 @@ impl Drop for FixedJointHandle {
 
 
 //"plugin"
-#[derive(Component, Debug, PartialEq, Clone, Copy)]
+#[derive(Component, Debug, PartialEq, Clone, Copy, Reflect)]
 #[cfg_attr(feature = "serialize", derive(serde::Serialize, serde::Deserialize))]
+#[reflect(Component)]
 pub struct FixedJoint {
     pub actor0: Entity,
     pub local_frame0: Transform,
@@ -60,6 +61,19 @@ pub struct FixedJoint {
 
     pub break_force: f32,
     pub break_torque: f32,
+}
+
+impl Default for FixedJoint {
+    fn default() -> Self {
+        Self { 
+            actor0: Entity::PLACEHOLDER, 
+            local_frame0: Transform::default(), 
+            actor1: Entity::PLACEHOLDER, 
+            local_frame1: Transform::default(), 
+            break_force: core::f32::MAX, 
+            break_torque: core::f32::MAX 
+        }
+    }
 }
 
 impl FixedJoint {

@@ -116,7 +116,7 @@ fn adjust_camera_settings(
 }
 
 fn spacebar_pauses_simulation(
-    keys: Res<Input<KeyCode>>,
+    keys: Res<ButtonInput<KeyCode>>,
     mut time: ResMut<Time<Virtual>>,
 ) {
     if keys.just_pressed(KeyCode::Space) {

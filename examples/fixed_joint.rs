@@ -71,7 +71,7 @@ fn setup_physics(
 
 fn release_fixed_joint(
     mut commands: Commands,
-    input: Res<Input<KeyCode>>,
+    input: Res<ButtonInput<KeyCode>>,
     mut fixed_joints: Query<Entity, With<FixedJoint>>,
 
 ) {

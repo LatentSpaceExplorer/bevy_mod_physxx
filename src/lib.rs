@@ -73,7 +73,7 @@ pub struct PhysicsSchedule;
 ///
 /// If you do not care about debug render, you can apply transforms
 /// a frame earlier by changing order of execution.
-///
+/// 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy, SystemSet)]
 pub enum PhysicsSet {
     /// First label in [PhysicsSet]. Use it to order your own systems
@@ -276,7 +276,7 @@ impl Plugin for PhysicsCore {
 
         let default_material = DefaultMaterialHandle(
             app.world.resource_mut::<Assets<bpx::Material>>()
-                .add(physics.create_material(0.5, 0.5, 0.6, ()).unwrap().into())
+                .add(physics.create_material(0.5, 0.5, 0.6, ()).unwrap())
         );
         app.insert_resource(default_material);
 

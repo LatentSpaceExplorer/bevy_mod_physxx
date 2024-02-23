@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_mod_physx::prelude::*;
-use bevy_mod_physx::prelude::{Material, Shape}; // bevy prelude conflicts
+use bevy_mod_physx::prelude::Material; // bevy prelude conflicts
 
 fn main() {
     App::new()
